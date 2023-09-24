@@ -1,6 +1,7 @@
 """Module for calling mdslides as an executable."""
 import pathlib
 from pathlib import Path
+import os.path
 import argparse
 import shutil
 import re
@@ -63,12 +64,17 @@ def build_slides(
 
     revealjs_origin = resource_path/"reveal.js"
     index_file_original = resource_path/"index_template.html"
+    index_file_original_with_extra_styles = resource_path/"index_template_extra.html"
     index_file_new = revealjs_dir/"index.html"
     highlight_path = resource_path/"cdn-release"/"build"/"styles"
 
+    extra_style = False
     # Open markdown file
     with open(markdown_file) as f_p:
         presentation_markdown = list(f_p)
+        base_path = os.path.dirname(markdown_file)
+        if os.path.isfile( base_path + "/" + "style.css" ):
+            extra_style = True
 
     # Build presentation
     presentation = list()
@@ -171,7 +177,8 @@ def build_slides(
         )
 
     # Read html
-    with open(index_file_original, "r") as f_p:
+    template = index_file_original_with_extra_styles if extra_style else index_file_original
+    with open(template, "r") as f_p:
         index_html = list(f_p)
 
     # Replace title
